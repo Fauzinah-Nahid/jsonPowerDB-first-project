@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+         <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h2>Vertical (basic) form</h2>
+  <form action="/action_page.php">
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input type="email" class="form-control" id="email" placeholder="Enter email" name="email">
+    </div>
+    <div class="form-group">
+      <label for="pwd">Password:</label>
+      <input type="password" class="form-control" id="pwd" placeholder="Enter password" name="pwd">
+    </div>
+    <div class="checkbox">
+      <label><input type="checkbox" name="remember"> Remember me</label>
+    </div>
+      <input type="button" class="btn btn-default" id="saveme" value="save" onclick="saveform()">
+<!--    <button type="submit" class="btn btn-default">Submit</button>-->
+  </form>
+</div>
+    <script>
+        function validateAndGetFormData(){
+            var emailVar = $("#email").val();
+            if (emailVar === ""){
+                alert("Email ID Required Value");
+                $("#email").focus();
+                return "";
+            }
+             var passVar = $("#pwd").val();
+            if (passVar === ""){
+                alert("Password Required Value");
+                $("#pwd").focus();
+                return "";
+            }
+            var jsonStrObj = {
+                email:emailVar,
+                pwd:passVar,
+            };
+            return JSON.stringify(jsonStrObj);
+        }
+        function createPUTRequest(connToken, jsonObj, dbName, relName){
+            var putRequest = "{\n"
+                        +"\"token\":\""
+                        +connToken
+                        +"\","
+                        +"\dbName\":\""
+                        +dbName
+                        +"\",\n" + "\cmd\" : \"PUT\",\n"
+                        +"\rel\" : \n"
+                        +relName + "\","
+                        +"\"jsonStr\":\n"
+                        +jsonObj
+                        +"\n"
+                        +"}";
+                return putRequest;
+        }
+        function executeCommand(reqString, dbBaseUrl, apiEndPointUrl){
+            var url = dbBaseUrl + apiEndPointUrl;
+            var jsonObj;
+            $.post(url, reqString, function (result){
+                jsonObj = JSON.parse(result);
+            }).fail(function(result){
+                var dataJsonObj = result.responseText;
+                jsonObj=JSON.parse(dataJsonObj);
+            });
+            return jsonObj;
+        }
+        function resetForm(){
+            $("#email").value("")
+            $("#pwd").value("");
+        }
+        
+        function saveform(){
+            var jsonStr = validateAndGetFormData();
+            if (jsonStr === ""){
+                return;
+            }
+            var putReqStr = createPUTRequest("	90936246|-31948852821581804|90943676",jsonStr,"SAMPLE","EMP-REL");
+            alert(putReqStr);
+            jQuery.ajaxSetup({async: false});
+            var resultObj = executeCommand(putReqStr,"http://api.login2explore.com:5577" "/api/iml");
+            jQuery.ajaxSetup({async: true});
+            alert(JSON.Stringify(resultObj));
+            resetForm();
+        }
+    </script>
+</body>
+</html>
